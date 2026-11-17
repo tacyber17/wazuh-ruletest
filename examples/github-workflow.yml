@@ -8,7 +8,7 @@ jobs:
     runs-on: self-hosted   # must be able to reach your Wazuh API
     steps:
       - uses: actions/checkout@v4
-      - uses: YOUR-GITHUB-USER/wazuh-ruletest@v0.1.0
+      - uses: tacyber17/wazuh-ruletest@v0.1.0
         with:
           path: tests/wazuh
           url: https://wazuh-test.example.internal:55000
