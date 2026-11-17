@@ -1,0 +1,20 @@
+suite: sshd basics
+defaults:
+  log_format: syslog
+  location: "master->/var/log/syslog"
+
+tests:
+  - name: invalid ssh user raises 5710
+    event: "Oct 15 21:07:00 linux-agent sshd[29205]: Invalid user blimey from 18.18.18.18 port 48928"
+    expect:
+      rule_id: 5710
+      level: 5
+      decoder: sshd
+      fields:
+        srcip: 18.18.18.18
+        srcuser: blimey
+
+  - name: harmless log does not alert
+    event: "Oct 15 21:07:00 linux-agent harmless[1]: hello world"
+    expect:
+      alert: false

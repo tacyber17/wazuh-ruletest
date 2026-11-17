@@ -1,0 +1,21 @@
+name: Wazuh rule tests
+on:
+  pull_request:
+    paths: ["rules/**", "tests/wazuh/**"]
+
+jobs:
+  ruletest:
+    runs-on: self-hosted   # must be able to reach your Wazuh API
+    steps:
+      - uses: actions/checkout@v4
+      - uses: YOUR-GITHUB-USER/wazuh-ruletest@v0.1.0
+        with:
+          path: tests/wazuh
+          url: https://wazuh-test.example.internal:55000
+          user: ${{ secrets.WAZUH_USER }}
+          password: ${{ secrets.WAZUH_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wazuh-ruletest-junit
+          path: wazuh-ruletest-junit.xml

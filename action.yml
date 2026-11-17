@@ -1,0 +1,54 @@
+name: Wazuh rule tests
+description: Run wazuh-ruletest regression tests against a Wazuh manager
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  path:
+    description: Test file or directory
+    default: "."
+  url:
+    description: Wazuh API URL, e.g. https://wazuh.example.com:55000
+    required: true
+  user:
+    description: Wazuh API user
+    required: true
+  password:
+    description: Wazuh API password (pass it from a secret)
+    required: true
+  insecure:
+    description: Skip TLS verification (lab use only)
+    default: "false"
+  ca-cert:
+    description: Path to a CA bundle used to verify the server
+    default: ""
+  junit:
+    description: Where to write the JUnit XML report (empty to skip)
+    default: "wazuh-ruletest-junit.xml"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install wazuh-ruletest
+      shell: bash
+      run: python -m pip install "${{ github.action_path }}"
+    - name: Run tests
+      shell: bash
+      env:
+        WAZUH_PASSWORD: ${{ inputs.password }}
+        WRT_PATH: ${{ inputs.path }}
+        WRT_URL: ${{ inputs.url }}
+        WRT_USER: ${{ inputs.user }}
+        WRT_INSECURE: ${{ inputs.insecure }}
+        WRT_CA_CERT: ${{ inputs.ca-cert }}
+        WRT_JUNIT: ${{ inputs.junit }}
+      run: |
+        args=("$WRT_PATH" --url "$WRT_URL" --user "$WRT_USER")
+        if [ "$WRT_INSECURE" = "true" ]; then args+=(--insecure); fi
+        if [ -n "$WRT_CA_CERT" ]; then args+=(--ca-cert "$WRT_CA_CERT"); fi
+        if [ -n "$WRT_JUNIT" ]; then args+=(--junit "$WRT_JUNIT"); fi
+        python -m wazuh_ruletest run "${args[@]}"

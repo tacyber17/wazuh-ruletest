@@ -1,0 +1,15 @@
+tests:
+  - name: wrong expectations on purpose
+    event: "Oct 15 21:07:00 linux-agent sshd[29205]: Invalid user blimey from 18.18.18.18 port 48928"
+    expect:
+      rule_id: 5712
+      level: 12
+      decoder: nginx
+      fields:
+        srcip: 1.1.1.1
+        nosuchfield: x
+
+  - name: must not alert, but it does
+    event: "Oct 15 21:07:00 linux-agent sshd[29205]: Invalid user blimey from 18.18.18.18 port 48928"
+    expect:
+      alert: false
